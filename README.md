@@ -396,14 +396,12 @@ services:
 1. Push repository to GitHub.
 2. In the Render / Railway dashboard, select **New -> Blueprint** and connect the repository.
 3. Render automatically provisions:
-   - `campusconnect-api-gateway` (Public Web Service with URL: `https://campusconnect-api-gateway.onrender.com`)
+   - `campusconnect-api-gateway` (Public Web Service with Live URL: `https://campusconnect-api-gateway-bk4t.onrender.com`)
    - `campusconnect-user-service`
    - `campusconnect-product-service`
    - `campusconnect-order-service`
 4. Set environment variables on the cloud dashboard for MongoDB Atlas connection string (`MONGODB_URI`).
-5. Run Postman tests by switching the `{{gateway_url}}` variable from `http://localhost:3000` to the cloud URL (e.g., `https://campusconnect-api-gateway.onrender.com`).
-
-*Free Tier Resource Note:* If free tier limits restrict simultaneous execution of four containers, deploy the primary working chain (`api-gateway` + `user-service`) and configure `PRODUCT_SERVICE_URL` and `ORDER_SERVICE_URL` to fallback instances.
+5. Run Postman tests against the live public cloud URL: `https://campusconnect-api-gateway-bk4t.onrender.com`.
 
 ---
 
@@ -422,7 +420,8 @@ services:
 - [x] Verification script proving configuration-based service discovery (`prove-service-discovery.js`).
 - [x] Updated Postman Collection (`postman/Lab7_API_Gateway_and_Service_Discovery.postman_collection.json`).
 - [x] Cloud deployment blueprint (`render.yaml`).
-- [x] Organized test screenshots verifying all gateway endpoints and failure handling (`screenshots/`).
+- [x] Live Public Cloud Gateway URL: `https://campusconnect-api-gateway-bk4t.onrender.com`
+- [x] Organized test screenshots verifying all gateway endpoints, 502 failure handling, and cloud deployment (`screenshots/`).
 - [x] Updated `README.md` with architecture diagram, discussion questions, discovery analysis, deployment steps, reflection, and screenshot directory.
 
 ---
@@ -437,5 +436,8 @@ All verified execution screenshots are cataloged in the `screenshots/` directory
 | 2 | `screenshots/2_get_users_gateway_200.png` | `GET {{gateway_url}}/users` – Reverse-proxied request routing to isolated internal User Service. | `200 OK` (2/2 Passed) |
 | 3 | `screenshots/3_get_products_gateway_200.png` | `GET {{gateway_url}}/products` – Reverse-proxied request routing to isolated internal Product Service. | `200 OK` (2/2 Passed) |
 | 4 | `screenshots/4_get_orders_gateway_200.png` | `GET {{gateway_url}}/orders` – Reverse-proxied request routing to isolated internal Order Service with inter-service data aggregation. | `200 OK` (2/2 Passed) |
-| 5 | `screenshots/5_upstream_failure_502.png` | `GET {{gateway_url}}/users` – Centralized upstream resilience test when User Service container is stopped. Gateway catches connection error and returns standardized JSON. | `502 Bad Gateway` / Upstream Down |
+| 5 | `screenshots/5_upstream_failure_502.png` | `GET {{gateway_url}}/users` – Centralized upstream resilience test when User Service container is stopped. Gateway catches connection error and returns standardized JSON. | `502 Bad Gateway` (2/2 Passed) |
+| 6 | `screenshots/6_render_dashboard.png` | **Cloud Deployment Evidence** – Render Cloud Blueprint dashboard showing all 4 services (`campusconnect-api-gateway`, `campusconnect-order-service`, `campusconnect-product-service`, `campusconnect-user-service`) active and deployed on Docker. | `Deployed (Docker)` |
+| 7 | `screenshots/7_cloud_postman_test.png` | **Public Cloud Re-Test** – Postman executing `GET https://campusconnect-api-gateway-bk4t.onrender.com/health` against the live internet-facing gateway, confirming full cloud operation. | `200 OK` (2/2 Passed) |
+
 
