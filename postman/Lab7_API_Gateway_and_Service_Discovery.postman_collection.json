@@ -1,0 +1,495 @@
+{
+  "info": {
+    "_postman_id": "c7a8b912-34ef-4682-bc10-202512039lab7",
+    "name": "Lab 7 - API Gateway & Service Discovery (CampusConnect)",
+    "description": "Postman Collection for Lab 7: API Gateway, Configuration-Based Service Discovery & Cloud Deployment.\nAll client requests target the single entry point (API Gateway: port 3000 / Cloud URL), which proxies requests to internal User, Product, and Order services.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "gateway_url",
+      "value": "http://localhost:3000",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "1. Gateway System",
+      "item": [
+        {
+          "name": "GET /health (Gateway Health & Service Registry)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200 OK', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('Gateway reports UP with serviceRegistry', function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json.status).to.eql('UP');",
+                  "    pm.expect(json.service).to.eql('api-gateway');",
+                  "    pm.expect(json.serviceRegistry).to.have.property('/users');",
+                  "    pm.expect(json.serviceRegistry).to.have.property('/products');",
+                  "    pm.expect(json.serviceRegistry).to.have.property('/orders');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{gateway_url}}/health",
+              "host": ["{{gateway_url}}"],
+              "path": ["health"]
+            }
+          }
+        },
+        {
+          "name": "GET / (Gateway Root & Documentation)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200 OK', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('Returns gateway info', function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json.service).to.include('API Gateway');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{gateway_url}}/",
+              "host": ["{{gateway_url}}"],
+              "path": [""]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. User Service via Gateway",
+      "item": [
+        {
+          "name": "GET /users (List All Users)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200 OK', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('Response is a list of users', function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json).to.be.an('array');",
+                  "    pm.expect(json.length).to.be.above(0);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{gateway_url}}/users",
+              "host": ["{{gateway_url}}"],
+              "path": ["users"]
+            }
+          }
+        },
+        {
+          "name": "GET /users/:id (Retrieve User 101)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200 OK', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('User ID is 101', function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json.id).to.eql('101');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{gateway_url}}/users/101",
+              "host": ["{{gateway_url}}"],
+              "path": ["users", "101"]
+            }
+          }
+        },
+        {
+          "name": "POST /users (Create New User)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 201 Created', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "pm.test('User created with generated ID', function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json).to.have.property('id');",
+                  "    pm.expect(json.name).to.eql('Aarav Patel');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Aarav Patel\",\n  \"email\": \"aarav.patel@campus.edu\",\n  \"role\": \"Student\",\n  \"department\": \"Information Technology\"\n}"
+            },
+            "url": {
+              "raw": "{{gateway_url}}/users",
+              "host": ["{{gateway_url}}"],
+              "path": ["users"]
+            }
+          }
+        },
+        {
+          "name": "PUT /users/:id (Update User 102)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200 OK', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"department\": \"Robotics & AI\"\n}"
+            },
+            "url": {
+              "raw": "{{gateway_url}}/users/102",
+              "host": ["{{gateway_url}}"],
+              "path": ["users", "102"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Product Service via Gateway",
+      "item": [
+        {
+          "name": "GET /products (List All Products)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200 OK', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('Response is a list of products', function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json).to.be.an('array');",
+                  "    pm.expect(json.length).to.be.above(0);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{gateway_url}}/products",
+              "host": ["{{gateway_url}}"],
+              "path": ["products"]
+            }
+          }
+        },
+        {
+          "name": "GET /products/:id (Retrieve Product 501)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200 OK', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('Product ID is 501', function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json.id).to.eql('501');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{gateway_url}}/products/501",
+              "host": ["{{gateway_url}}"],
+              "path": ["products", "501"]
+            }
+          }
+        },
+        {
+          "name": "POST /products (Create New Product)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 201 Created', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "pm.test('Product created with ID', function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json).to.have.property('id');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Smart Campus Notebook\",\n  \"category\": \"Stationery\",\n  \"price\": 12.50,\n  \"stock\": 75\n}"
+            },
+            "url": {
+              "raw": "{{gateway_url}}/products",
+              "host": ["{{gateway_url}}"],
+              "path": ["products"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Order Service via Gateway",
+      "item": [
+        {
+          "name": "GET /orders (List All Orders)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200 OK', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('Returns orders array', function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json).to.be.an('array');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{gateway_url}}/orders",
+              "host": ["{{gateway_url}}"],
+              "path": ["orders"]
+            }
+          }
+        },
+        {
+          "name": "POST /orders (Place Valid Order - Inter-service Validation)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 201 Created', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "pm.test('Order confirmed and enriched with User & Product', function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json.status).to.eql('CONFIRMED');",
+                  "    pm.expect(json.user).to.be.an('object');",
+                  "    pm.expect(json.product).to.be.an('object');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"101\",\n  \"productId\": \"501\",\n  \"quantity\": 2\n}"
+            },
+            "url": {
+              "raw": "{{gateway_url}}/orders",
+              "host": ["{{gateway_url}}"],
+              "path": ["orders"]
+            }
+          }
+        },
+        {
+          "name": "POST /orders (Invalid User ID - 404 Expected)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 404 Not Found', function () {",
+                  "    pm.response.to.have.status(404);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"99999\",\n  \"productId\": \"501\",\n  \"quantity\": 1\n}"
+            },
+            "url": {
+              "raw": "{{gateway_url}}/orders",
+              "host": ["{{gateway_url}}"],
+              "path": ["orders"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. Error Handling & Resilience",
+      "item": [
+        {
+          "name": "GET /unmapped-path (Gateway 404 Not Found)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 404 Not Found', function () {",
+                  "    pm.response.to.have.status(404);",
+                  "});",
+                  "pm.test('Error originates from api-gateway', function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json.service).to.eql('api-gateway');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{gateway_url}}/unknown-service-path",
+              "host": ["{{gateway_url}}"],
+              "path": ["unknown-service-path"]
+            }
+          }
+        },
+        {
+          "name": "GET /users (502 Bad Gateway when Upstream Service is Down)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Returns 502 Bad Gateway or 503 Service Unavailable', function () {",
+                  "    pm.expect([502, 503]).to.include(pm.response.code);",
+                  "});",
+                  "pm.test('Response includes target service details', function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json.service).to.eql('api-gateway');",
+                  "    pm.expect(json.targetService).to.eql('User Service');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{gateway_url}}/users",
+              "host": ["{{gateway_url}}"],
+              "path": ["users"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

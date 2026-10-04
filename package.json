@@ -1,0 +1,15 @@
+{
+  "name": "campusconnect-lab-7",
+  "version": "1.0.0",
+  "description": "Lab 7: API Gateway, Configuration-Based Service Discovery & Cloud Deployment",
+  "scripts": {
+    "test:discovery": "node prove-service-discovery.js",
+    "test:gateway": "node test-gateway.js",
+    "start:gateway": "node api-gateway/server.js",
+    "start:user": "node user-service/server.js",
+    "start:product": "node product-service/server.js",
+    "start:order": "node order-service/server.js"
+  },
+  "author": "202512039",
+  "license": "ISC"
+}
