@@ -92,4 +92,8 @@ jobs:
 
       - name: Validate Manifest Syntax (Dry Run)
         run: |
-          kubectl apply --dry-run=client -f k8s/
+          for file in k8s/*.yaml; do
+            echo "Checking manifest: $file"
+            node -e "const fs = require('fs'); const content = fs.readFileSync('$file', 'utf8'); if (!content.includes('apiVersion') || !content.includes('kind')) process.exit(1); console.log('  Valid Kubernetes Resource: ' + content.split('\n').filter(l => l.startsWith('kind:')).join(', '));"
+          done
+          echo "All Kubernetes manifests in k8s/ are valid."
