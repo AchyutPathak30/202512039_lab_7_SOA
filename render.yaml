@@ -1,0 +1,89 @@
+# Render Blueprint Specification (Infrastructure as Code)
+# Lab 7: API Gateway, Microservices & Cloud Deployment
+# Roll Number: 202512039
+
+services:
+  # 1. API Gateway (Public Web Service)
+  - type: web
+    name: campusconnect-api-gateway
+    env: docker
+    dockerfilePath: ./api-gateway/Dockerfile
+    dockerContext: ./api-gateway
+    plan: free
+    region: oregon
+    envVars:
+      - key: PORT
+        value: 3000
+      - key: GATEWAY_PORT
+        value: 3000
+      - key: USER_SERVICE_URL
+        fromService:
+          type: web
+          name: campusconnect-user-service
+          property: host
+      - key: PRODUCT_SERVICE_URL
+        fromService:
+          type: web
+          name: campusconnect-product-service
+          property: host
+      - key: ORDER_SERVICE_URL
+        fromService:
+          type: web
+          name: campusconnect-order-service
+          property: host
+      - key: REQUEST_TIMEOUT_MS
+        value: 5000
+
+  # 2. User Service (Internal Web Service)
+  - type: web
+    name: campusconnect-user-service
+    env: docker
+    dockerfilePath: ./user-service/Dockerfile
+    dockerContext: ./user-service
+    plan: free
+    region: oregon
+    envVars:
+      - key: PORT
+        value: 3001
+      - key: USER_SERVICE_PORT
+        value: 3001
+
+  # 3. Product Service (Internal Web Service)
+  - type: web
+    name: campusconnect-product-service
+    env: docker
+    dockerfilePath: ./product-service/Dockerfile
+    dockerContext: ./product-service
+    plan: free
+    region: oregon
+    envVars:
+      - key: PORT
+        value: 3002
+      - key: PRODUCT_SERVICE_PORT
+        value: 3002
+
+  # 4. Order Service (Internal Web Service)
+  - type: web
+    name: campusconnect-order-service
+    env: docker
+    dockerfilePath: ./order-service/Dockerfile
+    dockerContext: ./order-service
+    plan: free
+    region: oregon
+    envVars:
+      - key: PORT
+        value: 3003
+      - key: ORDER_SERVICE_PORT
+        value: 3003
+      - key: USER_SERVICE_URL
+        fromService:
+          type: web
+          name: campusconnect-user-service
+          property: host
+      - key: PRODUCT_SERVICE_URL
+        fromService:
+          type: web
+          name: campusconnect-product-service
+          property: host
+      - key: REQUEST_TIMEOUT_MS
+        value: 3500

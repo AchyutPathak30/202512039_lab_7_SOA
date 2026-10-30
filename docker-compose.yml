@@ -1,0 +1,77 @@
+services:
+  # API Gateway - Single External Entry Point for CampusConnect Microservices
+  api-gateway:
+    build:
+      context: ./api-gateway
+      dockerfile: Dockerfile
+    image: api-gateway:v1
+    container_name: api-gateway
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      - GATEWAY_PORT=3000
+      - USER_SERVICE_URL=http://user-service:3001
+      - PRODUCT_SERVICE_URL=http://product-service:3002
+      - ORDER_SERVICE_URL=http://order-service:3003
+      - REQUEST_TIMEOUT_MS=5000
+    depends_on:
+      - user-service
+      - product-service
+      - order-service
+    networks:
+      - campus-network
+    restart: unless-stopped
+
+  # User Service - Internal Microservice (No external port exposed)
+  user-service:
+    build:
+      context: ./user-service
+      dockerfile: Dockerfile
+    image: user-service:v1
+    container_name: user-service
+    environment:
+      - PORT=3001
+      - USER_SERVICE_PORT=3001
+    networks:
+      - campus-network
+    restart: unless-stopped
+
+  # Product Service - Internal Microservice (No external port exposed)
+  product-service:
+    build:
+      context: ./product-service
+      dockerfile: Dockerfile
+    image: product-service:v1
+    container_name: product-service
+    environment:
+      - PORT=3002
+      - PRODUCT_SERVICE_PORT=3002
+    networks:
+      - campus-network
+    restart: unless-stopped
+
+  # Order Service - Internal Microservice (No external port exposed)
+  order-service:
+    build:
+      context: ./order-service
+      dockerfile: Dockerfile
+    image: order-service:v1
+    container_name: order-service
+    environment:
+      - PORT=3003
+      - ORDER_SERVICE_PORT=3003
+      - USER_SERVICE_URL=http://user-service:3001
+      - PRODUCT_SERVICE_URL=http://product-service:3002
+      - REQUEST_TIMEOUT_MS=3500
+    depends_on:
+      - user-service
+      - product-service
+    networks:
+      - campus-network
+    restart: unless-stopped
+
+networks:
+  campus-network:
+    name: campus-network
+    driver: bridge
