@@ -48,7 +48,7 @@ app.use((req, res, next) => {
     const durationSec = durationMs / 1000;
     const target = req._targetService || "Gateway (Local)";
     const route = req.baseUrl || req.path || req.originalUrl.split("?")[0];
-    
+
     // Record Prometheus metrics
     httpRequestsTotal.inc({ method: req.method, route, status: String(res.statusCode) });
     httpRequestDuration.observe({ method: req.method, route, status: String(res.statusCode) }, durationSec);
